@@ -23,8 +23,10 @@ class InspectController < ApplicationController
     @public = !current_user.admin?
 
     # URL scrub
-    street = MiscFunctions.addressStringClean(params[:street])
-    citystatezip = MiscFunctions.addressStringClean(params[:citystatezip])
+    # street = MiscFunctions.addressStringClean(params[:street])
+    # citystatezip = MiscFunctions.addressStringClean(params[:citystatezip])
+    street = URI.unescape(param[:street].to_s.upcase.gsub(",","").gsub("+"," ").gsub("."," ").strip)
+    citystatezip = URI.unescape(param[:citystatezip].to_s.upcase.gsub(",","").gsub("+"," ").gsub("."," ").strip)
 
     # Search by unclean address (archive)
     @output = Output.find_by(street: street, citystatezip: citystatezip)

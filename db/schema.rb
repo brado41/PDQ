@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160510215307) do
+ActiveRecord::Schema.define(version: 20160531195114) do
 
   create_table "addresses", force: :cascade do |t|
     t.text "street"
@@ -44,17 +44,19 @@ ActiveRecord::Schema.define(version: 20160510215307) do
     t.float  "time"
     t.text   "zpid"
     t.text   "runid"
-    t.string "names",        default: "--- []\n"
-    t.string "numbers",      default: "--- []\n"
-    t.string "passes",       default: "--- []\n"
-    t.string "urls",         default: "--- []\n"
-    t.string "reason",       default: "--- []\n"
-    t.string "comments",     default: "--- []\n"
-    t.string "usage",        default: "--- []\n"
+    t.string "names",              default: "--- []\n"
+    t.string "numbers",            default: "--- []\n"
+    t.string "passes",             default: "--- []\n"
+    t.string "urls",               default: "--- []\n"
+    t.string "reason",             default: "--- []\n"
+    t.string "comments",           default: "--- []\n"
+    t.string "usage",              default: "--- []\n"
     t.string "product"
     t.text   "date"
-    t.string "data_source",  default: "--- []\n"
+    t.string "data_source",        default: "--- []\n"
     t.string "place_id"
+    t.text   "clean_street"
+    t.text   "clean_citystatezip"
   end
 
   create_table "users", force: :cascade do |t|

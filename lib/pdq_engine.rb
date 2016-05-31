@@ -73,7 +73,7 @@ module PdqEngine
 
       # Confirm whether property was found, exit function if not found
       # not_found_check with be a boolean
-      not_found_check = zillowNotFoundCheck(output_data, zillow_data[:propRawXml], address, params)
+      not_found_check = zillowNotFoundCheck(output_data, zillow_data[:propRawXml], address, params, alt_lookup)
       return address if not_found_check
 
       # Store Zillow key prop data (kpd)
@@ -166,7 +166,7 @@ module PdqEngine
   end
   
   # If relying on Zillow - save property not found
-  def zillowNotFoundCheck(output, zillow_xml_data, address, params)
+  def zillowNotFoundCheck(output, zillow_xml_data, address, params, alt_address)
     zpid = zillow_xml_data.at_xpath('//zpid')
     zestimate = zillow_xml_data.at_xpath('//results//result//zestimate//amount')
 
@@ -182,18 +182,23 @@ module PdqEngine
       combineMetricOutputs(output)
       output[:runTime] = 0
 
-      saveOutputRecord(address, output, params)
+      saveOutputRecord(address, alt_address, output, params)
       return true
     end
     return false
   end
 
   # Save the output data for a property
-  def saveOutputRecord(address, output, params)
+  def saveOutputRecord(address, alt_address, output, params)
     newOutput = Output.new
     newOutput.place_id = output[:placeId]
-    newOutput.street = address.street
-    newOutput.citystatezip = address.citystatezip
+    # Unclean (archive) address
+    newOutput.street = alt_address.street
+    newOutput.citystatezip = alt_address.citystatezip
+    # Clean address
+    newOutput.clean_street = address.street
+    newOutput.clean_citystatezip = address.citystatezip
+
     newOutput.date = Date.today  
     newOutput.product = params[:product].to_s.upcase
     newOutput.time = output[:runTime].round(2)
