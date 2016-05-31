@@ -53,33 +53,41 @@ class ValuesController < ApplicationController
     else # if single property, create new address record or use place id if passed
       runID = "#{params[:path].to_s.capitalize}: #{Date.today.to_s}"
 
+      # If we are provided a placeid (not active)
       if !params[:placeid].nil?
         geo_data = GeoFunctions.getGoogleGeoByPlaceId(params[:placeid])
-        a = PdqEngine.computeDecision(geo_data, params, runID)
+        search_add = PdqEngine.computeDecision(geo_data, params, runID)
 
       else
+        # These functions take "unclean" address from Billboard URL and clean it
         street = MiscFunctions.addressStringClean(params[:street])
         citystatezip = MiscFunctions.addressStringClean(params[:citystatezip])
 
+        # Create an "unclean" (archive) lookup address
+        hist_lookup_add = Address.new
+        hist_lookup_add.street = street
+        hist_lookup_add.citystatezip = citystatezip
+
         # Get Google place id
         geo_data = GeoFunctions.getGoogleGeoByAddress(street, citystatezip)
-        a = PdqEngine.computeDecision(geo_data, params, runID)
+        search_add = PdqEngine.computeDecision(geo_data, params, runID, alt_lookup = hist_lookup_add)
       end
-      @addresses = [a]
+      @addresses = [search_add]
     end
 
-    puts a.street
-    puts a.citystatezip
-
     # update parameters to match clean-address format
-    params[:street] = a.street
-    params[:citystatezip] = a.citystatezip
+    # params[:street] = a.street
+    # params[:citystatezip] = a.citystatezip
 
     # Aggregate all output and render
     @allOutput = Output.all
     return render 'getvalues' if params[:path].nil?
 
-    @calcedurl = URI.escape("/inspect/#{params[:street]}/#{params[:citystatezip]}")
+    # Search here
+
+    # If request coming from billboard
+    # @calcedurl = URI.escape("/inspect/#{params[:street]}/#{params[:citystatezip]}")
+    @calcedurl = URI.escape("/inspect/#{search_add.street}/#{search_add.citystatezip}")
     puts @calcedurl
     return render 'blank'
   end

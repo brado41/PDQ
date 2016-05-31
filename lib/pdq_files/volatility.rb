@@ -10,7 +10,7 @@ module Volatility
   VOL_PRICE_DELTA_THRES = 0.25
   RANGE_PRICE_DELTA_THRES = 0.80
   VOL_PROP_PRICE_THRES = 0.08
-  CORR_THRES = 0
+  CORR_THRES = -1
   RET_VOL_FREQ = "Annual"
   RET_VOL_THRES = 0
   MIN_DATA_PTS = 6
@@ -103,6 +103,14 @@ module Volatility
       return
     end
 
+    # If home estimate does not exist
+    if home_est.nil? || home_est == 0
+      output[data_source.to_sym][:metrics] << "N/A"
+      output[data_source.to_sym][:metricsPass] << false
+      output[data_source.to_sym][:metricsComments] << "Missing current property estimate"
+      return
+    end
+
     value = (vol_data[:diff].standard_deviation/home_est).round(3)
     pass = (value < VOL_PRICE_DELTA_THRES)
     comment = "< #{VOL_PRICE_DELTA_THRES} | St. dev. of price differences from neighborhood as a % of estimate"
@@ -135,6 +143,14 @@ module Volatility
       return
     end
 
+    # If home estimate does not exist
+    if home_est.nil? || home_est == 0
+      output[data_source.to_sym][:metrics] << "N/A"
+      output[data_source.to_sym][:metricsPass] << false
+      output[data_source.to_sym][:metricsComments] << "Missing current property estimate"
+      return
+    end
+
     value = (vol_data[:diff].range/home_est).round(3)
     pass = (value < RANGE_PRICE_DELTA_THRES)
     comment = "< #{RANGE_PRICE_DELTA_THRES} | Total range of price difference from neighborhood as a % of estimate"
@@ -156,6 +172,14 @@ module Volatility
       output[data_source.to_sym][:metrics] << "N/A"
       output[data_source.to_sym][:metricsPass] << false
       output[data_source.to_sym][:metricsComments] << "Missing property price data"
+      return
+    end
+
+    # If home estimate does not exist
+    if home_est.nil? || home_est == 0
+      output[data_source.to_sym][:metrics] << "N/A"
+      output[data_source.to_sym][:metricsPass] << false
+      output[data_source.to_sym][:metricsComments] << "Missing current property estimate"
       return
     end
 

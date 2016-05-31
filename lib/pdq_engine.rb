@@ -12,16 +12,26 @@ module PdqEngine
 #################################
 # Main function
 #################################
-  def computeDecision(geo_data, params, runId)
+  # geo_data: hash of placeid, lat/lon, formatted address
+  # params: hash of parameters (i.e. run type)
+  # runId: ID
+  # alt_lookup: alternative lookup address
+  def computeDecision(geo_data, params, runId, alt_lookup = nil)
     # Start timer
     start_time = Time.now
 
     # Create the address strings
     split_formatted_address = geo_data[:format_add].split(", ")
 
+    # Create new address item with "clean" string values
     address = Address.new
     address.street = split_formatted_address[0].upcase
     address.citystatezip = [split_formatted_address[1], split_formatted_address[2]].join(" ").upcase
+
+    puts address.street
+    puts address.citystatezip
+    puts alt_lookup.street
+    puts alt_lookup.citystatezip
 
     # Check property counter - exit process if we have exceed the limit
     daily_pdq_cnt = Output.where("runid LIKE ?", "%#{Time.now.to_date}").length
@@ -29,8 +39,19 @@ module PdqEngine
     return nil if daily_pdq_cnt > DAILY_PDQ_CNT_THRES
 
     # See if record already exists, if so, exit function
-    # output = Output.find_by(place_id: goog_geo_data[:placeId])
-    # output = Output.find_by(street: address.street, citystatezip: address.citystatezip)
+    # Currently lookup by three different methods: unclean (archive) address,
+    # clean address, and placeid
+    # Lookup by "unclean" address (archive) and return the unclean address for searching purposes
+    if !alt_lookup.nil?
+      output = Output.find_by(street: alt_lookup.street, citystatezip: alt_lookup.citystatezip)
+      return alt_lookup if (!output.nil? && params[:path] != "gather")
+    end
+
+    # Lookup by "clean" address
+    output = Output.find_by(street: address.street, citystatezip: address.citystatezip)
+    return address if (!output.nil? && params[:path] != "gather")
+
+    # Lookup by placeid
     output = Output.find_by(place_id: geo_data[:placeId])
     return address if (!output.nil? && params[:path] != "gather")
 
@@ -44,9 +65,6 @@ module PdqEngine
     createEmptyStorage(output_data, "Zillow") if ZILLOW_IND
     createEmptyStorage(output_data, "MLS") if MLS_IND
     createEmptyStorage(output_data, "FA") if FIRST_AM_IND
-
-    # output_data[:lat] = goog_geo_data[:lat]
-    # output_data[:lon] = goog_geo_data[:lon]
 
     # ZILLOW INFO GATHERING
     if ZILLOW_IND
@@ -106,11 +124,6 @@ module PdqEngine
       Typicality.propertyTypicality(output_data, mls_kpd, mls_data[:compsData], census_geo_info, "MLS") if MLS_IND # Typicality using comps
     end
 
-    # output_data[:runTime] = Time.now - start_time
-    # puts Time.now - start_time
-    # return output_data, mls_data, mls_kpd
-    # return output_data
-
     # Get Decision
     getDecision(output_data, DECISION_DATA_SOURCE)
 
@@ -127,7 +140,6 @@ module PdqEngine
 
     # Return address (used for rendering view)
     return address
-    # <%= @sectionTimes[q+1]%>
   end
 
 #################################
@@ -276,3 +288,11 @@ module PdqEngine
     output[:reason][11] = "Approved" if output[:reason].compact.size == 0
   end
 end
+
+# DEBUGGING CODE
+# output_data[:runTime] = Time.now - start_time
+# puts Time.now - start_time
+# return output_data, mls_data, mls_kpd
+# return output_data
+
+# <%= @sectionTimes[q+1]%>

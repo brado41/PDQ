@@ -19,11 +19,21 @@ class InspectController < ApplicationController
   end
 
   def inspectaddress
-    outputs = Output.all
-    street = params[:street]
-    citystatezip = params[:citystatezip]
-    @public = !current_user.admin?    
-    @output = outputs.find_by(street: URI.unescape(street.to_s.upcase.gsub(",","").gsub("+"," ").gsub("."," ").strip), citystatezip: URI.unescape(citystatezip.to_s.upcase.gsub(",","").gsub("+"," ").gsub("."," ").strip))
+    # outputs = Output.all
+    @public = !current_user.admin?
+
+    # URL scrub
+    street = MiscFunctions.addressStringClean(params[:street])
+    citystatezip = MiscFunctions.addressStringClean(params[:citystatezip])
+
+    # Search by unclean address (archive)
+    @output = Output.find_by(street: street, citystatezip: citystatezip)
+
+    # Search by clean address (if not found by unclean address)
+    @output ||= Output.find_by(clean_street: street, clean_citystatezip: citystatezip)
+
+    # @output = Output.find_by(street: URI.unescape(street.to_s.upcase.gsub(",","").gsub("+"," ").gsub("."," ").strip), citystatezip: URI.unescape(citystatezip.to_s.upcase.gsub(",","").gsub("+"," ").gsub("."," ").strip))
+
     if @output == nil
       @calcurl = "/getvalues/calc/"+street+"/"+citystatezip
       @street = URI.unescape(street.to_s.upcase.gsub(",","").gsub("+"," ").gsub("."," ").strip)

@@ -6,9 +6,6 @@
 module CensusApi
   module_function
 
-  # Constant
-  CENSUS_KEY = ApiTokens.census_key
-
   # Function to get the census track for the property being analyzed (based on lat/lon)
   def getGeoInfo(lat, lon)
     # Construct url
@@ -55,7 +52,7 @@ module CensusApi
     bd_key = "B25041_007E" if num_beds == 5
     bd_key = "B25041_003E" if num_beds == 1
 
-    base_url = "http://api.census.gov/data/2013/acs5?get=#{bd_key},B25041_001E&for=block+group:#{census_output[:blkgrp]}&in=state:#{census_output[:state]}+county:#{census_output[:county]}+tract:#{census_output[:tract]}&key=#{CENSUS_KEY}"
+    base_url = "http://api.census.gov/data/2013/acs5?get=#{bd_key},B25041_001E&for=block+group:#{census_output[:blkgrp]}&in=state:#{census_output[:state]}+county:#{census_output[:county]}+tract:#{census_output[:tract]}&key=#{ApiTokens.census_key}"
 
     # Try to ping api and return results, if error return 0
     begin
@@ -75,7 +72,7 @@ module CensusApi
 
   def getBlockInfo(census_output)
     # Construct url
-    base_url = "http://api.census.gov/data/2010/sf1?get=H0030001&for=block:#{census_output[:block]}&in=state:#{census_output[:state]}+county:#{census_output[:county]}+tract:#{census_output[:tract]}&key=#{CENSUS_KEY}"
+    base_url = "http://api.census.gov/data/2010/sf1?get=H0030001&for=block:#{census_output[:block]}&in=state:#{census_output[:state]}+county:#{census_output[:county]}+tract:#{census_output[:tract]}&key=#{ApiTokens.census_key}"
 
     begin
       url = URI.parse(base_url)

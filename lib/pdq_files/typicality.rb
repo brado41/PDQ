@@ -323,7 +323,7 @@ module Typicality
     begin
       neigh_est_avg = (nb_data[:totalPrice].to_f/nb_data[:totalPriceCount].to_f).round(0)
       est_nb_value = ((prop_data[:estimate]/neigh_est_avg-1)*100).round(1)
-      est_nb_pass = (est_nb_value <= NEIGHBOR_EST_THRES)
+      est_nb_pass = (est_nb_value.abs <= NEIGHBOR_EST_THRES)
       est_nb_comment = "% deviation from community within #{NEIGHBOR_EST_THRES}% | Prop: #{prop_data[:estimate]} | Avg: #{neigh_est_avg}"
     rescue
       est_nb_value = 0
@@ -336,7 +336,7 @@ module Typicality
     begin
       neigh_bd_avg = (nb_data[:totalBedrooms].to_f/nb_data[:totalBedroomsCount].to_f).round(2)
       bd_nb_value = ((prop_data[:bd]/neigh_bd_avg-1)*100).round(1)
-      bd_nb_pass = (bd_nb_value <= NEIGHBOR_BD_THRES)
+      bd_nb_pass = (bd_nb_value.abs <= NEIGHBOR_BD_THRES)
       bd_nb_comment = "% deviation from community within #{NEIGHBOR_BD_THRES}% | Prop: #{prop_data[:bd]} | Avg: #{neigh_bd_avg}"
     rescue
       bd_nb_value = 0
@@ -349,7 +349,7 @@ module Typicality
     begin
       neigh_sqft_avg = (nb_data[:totalSqFt].to_f/nb_data[:totalSqFtCount].to_f).round(0)
       sqft_nb_value = ((prop_data[:propSqFt]/neigh_sqft_avg-1)*100).round(1)
-      sqft_nb_pass = (sqft_nb_value <= NEIGHBOR_SQFT_THRES)
+      sqft_nb_pass = (sqft_nb_value.abs <= NEIGHBOR_SQFT_THRES)
       sqft_nb_comment = "% deviation from community within #{NEIGHBOR_SQFT_THRES}% | Prop: #{prop_data[:propSqFt]} | Avg: #{neigh_sqft_avg}"
     rescue
       sqft_nb_value = 0

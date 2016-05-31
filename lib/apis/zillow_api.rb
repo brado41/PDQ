@@ -9,8 +9,6 @@ module ZillowApi
 
   # Constants
   ZILLOW_TOKEN = ApiTokens.zillow_key
-  # ZILLOW_TOKEN = 'X1-ZWz1euzz31vnd7_5b1bv' # Neals Productions
-  # ZILLOW_TOKEN = 'X1-ZWz19qut1tazuz_1fz14' # Brad Testing
 
   # Function to collect all the zillow information for a give property
   # Returns a hash with the rax XML, deep comps data, urls to hit,
