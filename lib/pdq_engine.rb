@@ -134,7 +134,7 @@ module PdqEngine
     output_data[:runTime] = Time.now - start_time
 
     # Save output
-    saveOutputRecord(address, output_data, params)
+    saveOutputRecord(address, alt_lookup, output_data, params)
 
     # Save comps
 
@@ -195,6 +195,7 @@ module PdqEngine
     # Unclean (archive) address
     newOutput.street = alt_address.street
     newOutput.citystatezip = alt_address.citystatezip
+
     # Clean address
     newOutput.clean_street = address.street
     newOutput.clean_citystatezip = address.citystatezip
